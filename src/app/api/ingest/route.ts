@@ -4,7 +4,7 @@ import path from "path"
 import { loadDocument } from "@/lib/langchain/loader"
 import { SUPPORTED_EXTENSIONS } from "@/lib/helper/isSupportedFile";
 import { insertDocument } from "@/lib/db/queries/documents";
-import { error } from "console";
+import { splitDocuments } from "@/lib/langchain/splitter"
 
 export async function POST(request: NextRequest) {
   // 1. Parse form data
@@ -40,6 +40,10 @@ export async function POST(request: NextRequest) {
   // 5. Load document content
   const docs = await loadDocument(filePath);
 
+  // NEW: Split into chunks (Phase 2)
+  const chunks = await splitDocuments(docs);
+  console.log(`[Ingest] Split into ${chunks.length} chunks`);
+
   // 6. Save to database via Drizzle
   const record = await insertDocument({
     filename: file.name,
@@ -53,5 +57,6 @@ export async function POST(request: NextRequest) {
     success: true,
     document: record,
     pagesLoaded: docs.length,
+    chunksCreated: chunks.length,
   });
 }
