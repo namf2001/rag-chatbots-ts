@@ -5,6 +5,7 @@ import { loadDocument } from "@/lib/langchain/loader"
 import { SUPPORTED_EXTENSIONS } from "@/lib/helper/isSupportedFile";
 import { insertDocument } from "@/lib/db/queries/documents";
 import { splitDocuments } from "@/lib/langchain/splitter"
+import { ingestChunks } from "@/lib/langchain/vectorstore";
 
 export async function POST(request: NextRequest) {
   // 1. Parse form data
@@ -52,11 +53,13 @@ export async function POST(request: NextRequest) {
     content: docs.map(d => d.pageContent).join("\n"),
   });
 
+  const insertedCount = await ingestChunks(record.id, chunks);
+
   // 7. Return response
   return NextResponse.json({
     success: true,
     document: record,
     pagesLoaded: docs.length,
-    chunksCreated: chunks.length,
+    chunksCreated: insertedCount,
   });
 }

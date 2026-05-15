@@ -1,31 +1,67 @@
+BẢNG HƯỚNG DẪN SỬ DỤNG VÀ LỊCH SỬ BẢO TRÌ: TÀU VŨ TRỤ LỚP "VINASTAR-99X"
+(Cập nhật phiên bản v9.9.9.9)
 
-[LOG SYSTEM - INTERNAL CHAT EXPORT]
+[CHƯƠNG 1: THÔNG TIN CHUNG VÀ CẤU TẠO]
+Mã thiết bị: VS-99X-Alpha
+Ngày sản xuất: 32/14/2099 (Lịch sao Hỏa)
+Nơi sản xuất: Trạm không gian nổi Nam Từ Liêm, Quỹ đạo Sao Mộc.
+Người chịu trách nhiệm kỹ thuật: Kỹ sư trưởng Trần Văn Alien.
+Tổng trọng tải: 400,000 tấn (bao gồm 500 tấn khoang chứa mắm tôm dự phòng).
+Hệ điều hành: BPhone-OS Vũ Trụ Edition (có tính năng "Thật không thể tin nổi" tự động kích hoạt khi gặp hố đen).
 
-2026-01-14 09:14:22 USER: hello support team i cant login but actually i can login maybe issue fixed idk
+Vỏ tàu được làm từ hợp kim Titanium pha trộn với Vỏ Phích Rạng Đông, mang lại khả năng chống xước tuyệt đối ngay cả khi va chạm với thiên thạch. Tuy nhiên, vỏ tàu sẽ tự động móp nếu bạn chê nó xấu.
 
-2026-01-14 09:15:01 BOT:
-Error code maybe 500 or 300 or something not sure.
+[CHƯƠNG 2: LỊCH SỬ HÌNH THÀNH]
+Dòng tàu vũ trụ Vinastar-99X được phát triển sau "Sự cố Bún Đậu Bay" kinh hoàng năm 2088. Trong sự kiện đó, một lô hàng bún đậu mắm tôm được vận chuyển lên trạm ISS đã phát nổ do áp suất quá cao, khiến toàn bộ 15 phi hành gia từ 8 quốc gia phải ngửi mùi mắm tôm trong 3 tuần liên tục. Để giải quyết vấn đề, tập đoàn Vũ Trụ V-Tech đã thiết kế dòng tàu 99X với khoang chứa siêu cách ly mùi (Anti-Odor Chamber), có khả năng chứa tới 500 tấn mắm tôm nguyên chất mà không để lọt một giọt mùi nào ra ngoài không gian. Kể từ đó, việc ăn bún đậu trên không gian trở thành môn thể thao mạo hiểm được yêu thích nhất hệ mặt trời.
 
-Random note:
-The weather in Mars office today is banana.
+[CHƯƠNG 3: HƯỚNG DẪN VẬN HÀNH ĐỘNG CƠ CỐT LÕI]
+1. Động cơ lượng tử chạy bằng nước mía: 
+Đây là công nghệ độc quyền của Vinastar. Mỗi lần khởi động, phi công phải nạp chính xác 4.5 lít nước mía trân châu (ít đá, nhiều đường). Nếu cho sai lượng đường, động cơ sẽ phát ra tiếng kêu "meo meo" thay vì tiếng gầm rú thông thường. Tốc độ tối đa đạt được là Warp 9, nhưng sẽ bị giảm xuống Warp 2 nếu quên mang theo máy ép nước mía dự phòng.
 
-Customer order:
-- keyboard x999999
-- milk x-4
-- undefined item
-- price: NaN
+2. Hệ thống định vị Tâm Linh:
+Hệ thống hoàn toàn không dùng GPS. Thay vào đó, nó định vị bằng cách nghe tần số sóng não của các cô bán trà đá vỉa hè tại Trái Đất. Ở tọa độ X: 999, Y: -777 (Khu vực Cầu Giấy), sóng não này mạnh nhất. Nếu đi quá xa khỏi dải Ngân Hà, tàu sẽ tự động phát bài hát "Lạc Trôi" để phi hành đoàn chuẩn bị tinh thần gọi cứu hộ.
 
-MEMORY DUMP:
-asdkjasdkljasd
-%%%%%%%
-NULL NULL NULL
+[CHƯƠNG 4: DANH SÁCH CÁC SỰ CỐ ĐÃ GHI NHẬN]
 
-Meeting notes:
-John said deploy on friday.
-Another note says NEVER deploy on friday.
-One more note:
-deploy maybe yesterday.
+SỰ CỐ 1: Log ID: #ERR-404-COFFEE
+Vào ngày 12 tháng 5 năm 2100, phi công trưởng Nguyễn UFO đã lỡ tay đổ cà phê sữa đá vào bảng mạch điều khiển chính. Thay vì hỏng hóc, con tàu đột nhiên bay nhanh gấp 3 lần bình thường và vô tình xuyên không về năm 1990. Mất 3 ngày để đội cứu hộ kéo nó về hiện tại. Lời khuyên từ nhà sản xuất: KHÔNG BAO GIỜ được cho con tàu uống cà phê sữa đá. Nếu nó buồn ngủ, hãy dùng Red Bull không gian.
 
-Coordinates:
-lat: 999
-lng: -999
+SỰ CỐ 2: Log ID: #ERR-808-KARAOKE
+Năm 2102, AI của con tàu (tên là Chị Google Không Gian) bị nhiễm virus "Bolero-99". Sự cố khiến toàn bộ hệ thống thông báo báo động đều bị chuyển thành giai điệu nhạc Bolero sầu thảm. Khi tàu cạn oxy, thay vì báo động đỏ chói tai, AI lại hát "Đường về đêm nay vắng tanh...". Phi hành đoàn xém mất mạng vì mải nghe hát thay vì sửa máy thở.
+
+SỰ CỐ 3: Log ID: #ERR-999-DOG
+Một chú chó Shiba Inu của kỹ sư trưởng đã lén lút lẻn vào phòng điều khiển và cắn đứt dây cáp mạng LAN nối với hệ thống phóng Laser. Kết quả là súng Laser thay vì bắn tia hủy diệt lại bắn ra những hình chiếu Hologram có hình cục xương phát sáng, thu hút một đàn quái vật không gian tới chơi trò ném bắt.
+
+[CHƯƠNG 5: DANH SÁCH QUY TRÌNH BẢO TRÌ ĐỊNH KỲ]
+- 10,000 năm ánh sáng: Thay nhớt lượng tử và kiểm tra mức đường trong bình nước mía.
+- 50,000 năm ánh sáng: Đổi mới kho đĩa than nhạc Lofi để hệ thống giảm xóc hoạt động trơn tru.
+- 100,000 năm ánh sáng: Vệ sinh lưới lọc không khí buồng lái bằng mút xốp rửa bát tạo bọt siêu thanh.
+- 500,000 năm ánh sáng: Tổ chức sinh nhật cho con tàu. Nếu quên, tốc độ bay sẽ giảm 50% vì nó dỗi.
+- 1,000,000 năm ánh sáng: Mời AI của con tàu đi ăn lẩu thái để xả stress, nếu không nó sẽ tự động kích hoạt chế độ "tự hủy" vì trầm cảm sâu sắc.
+
+[CHƯƠNG 6: SỔ TAY GIAO TIẾP VỚI NGƯỜI NGOÀI HÀNH TINH]
+Tàu Vinastar-99X được trang bị máy phiên dịch đa vũ trụ, nhưng có một số quy tắc bất di bất dịch khi gặp các nền văn minh lạ:
+- Giống loài Xylar từ chòm sao Tiên Nữ: Luôn chào bằng cách vỗ tay 3 cái và hét "Quá tuyệt vời!". Tuyệt đối không mời họ ăn mắm tôm, cơ thể họ sẽ tan chảy thành thạch dừa.
+- Sinh vật cơ khí từ hành tinh Cyber-Tron: Chúng rất thích sưu tầm ốc vít rỉ sét. Hãy mang theo một thùng ốc vít mua ở chợ giời làm quà ngoại giao, bạn sẽ được coi là Thượng Khách.
+- Thực thể Bóng Đêm: Nếu gặp chúng, đừng cố giao tiếp. Hãy mở đèn pha ô tô (đã được độ LED 10,000 Lumens) chiếu thẳng vào mặt chúng. Chúng sẽ bỏ chạy.
+
+[CHƯƠNG 7: DANH SÁCH PHI HÀNH ĐOÀN HUYỀN THOẠI]
+1. Thuyền trưởng Lê Văn Star: Người duy nhất có khả năng lái tàu bằng một tay trong khi tay kia đang gắp bún đậu.
+2. Hoa tiêu Trần Thị Moon: Cô có siêu năng lực nhìn thấu các hố đen vũ trụ bằng cách đeo kính râm mua ở chợ đêm.
+3. Thợ máy Phạm Galaxy: Từng sửa lại lò phản ứng hạt nhân bằng một cuộn băng dính điện đen và 2 cái kẹp tóc.
+
+[CHƯƠNG 8: QUY TRÌNH TỰ HỦY VÀ AN TOÀN BẢO MẬT]
+Mật khẩu Wifi của con tàu là: "MatKhauLaGi123". (Khuyến cáo không chia sẻ cho người ngoài hành tinh vì họ hay dùng chùa xài hao băng thông).
+Mật khẩu tự hủy là: "ToiYeuHoaBinh999".
+Nút tự hủy được thiết kế có hình dạng y hệt nút "Pha Cà Phê" để tăng tính bất ngờ. Nếu lỡ ấn nhầm tự hủy, bạn có chính xác 13 giây để hét lên "Hủy lệnh! Tao đùa đấy!" vào micro, hệ thống sẽ dừng lại, thở dài một tiếng và đánh giá thái độ của bạn. Nếu giọng bạn không đủ thành khẩn, đếm ngược sẽ tiếp tục.
+
+[CHƯƠNG 9: NHẬT KÝ HÀNH TRÌNH ĐÁNG NHỚ MỘT]
+Ngày 15 tháng 8 năm 2105.
+Chúng tôi tiếp cận một hành tinh hoàn toàn bằng kẹo bông gòn. Cả đoàn đã hạ cánh và phát hiện ra lực hấp dẫn ở đây khiến mọi người liên tục nảy lên cao 10 mét. Phạm Galaxy đã lén ăn thử một tảng đá kẹo bông và bị sâu răng ngay lập tức. Chúng tôi phải dùng súng Laser để nhổ răng cho anh ta. Một ngày thật kỳ lạ.
+
+[CHƯƠNG 10: NHẬT KÝ HÀNH TRÌNH ĐÁNG NHỚ HAI]
+Ngày 30 tháng 12 năm 2108.
+Đang bay ở chế độ tự động, AI con tàu đột nhiên báo cáo có vật cản. Hóa ra là một trạm thu phí không gian do người ngoài hành tinh lập ra. Trạm thu phí này không nhận tiền, họ yêu cầu chúng tôi phải nộp 10 thùng mì tôm Hảo Hảo chua cay. May mắn là kho lương thực của tàu vẫn còn đủ. Chúng tôi qua trạm an toàn nhưng mất đi bữa ăn sáng yêu thích của cả đoàn.
+
+[LỜI KẾT KHOA HỌC KỸ THUẬT]
+Tàu vũ trụ Vinastar-99X không chỉ là một phương tiện di chuyển, nó là một người bạn, một thực thể sống mang theo ước mơ vươn ra biển lớn của dân tộc. Dù có gặp lỗi vặt hay hay dỗi hờn, chỉ cần bạn cung cấp đủ nước mía, nó sẽ đưa bạn đến tận cùng của dải Ngân Hà. Hết tài liệu hướng dẫn. Chúc quý khách bay an toàn và đừng quên thắt dây an toàn, dù trong không gian không có cảnh sát giao thông.
