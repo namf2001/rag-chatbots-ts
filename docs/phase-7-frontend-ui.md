@@ -1,290 +1,266 @@
 # Phase 7: Frontend UI (Chat Interface)
 
-> **Mục tiêu**: Xây dựng giao diện chat đẹp, dark theme, streaming, sử dụng shadcn/ui.
+> **Mục tiêu**: Xây dựng giao diện chat dark theme với shadcn Sidebar, streaming messages, và document management.
 >
-> 📌 Tương ứng bước **Application** + **User** trong RAG diagram.
+> 📌 Stack: **Zustand** (chat state) + **TanStack Query** (documents) + **shadcn Sidebar**
 
 ---
 
-## 📋 Checklist
+## ✅ Danh sách files đã tạo
 
-- [ ] Tạo `src/components/chat/ChatWindow.tsx`
-- [ ] Tạo `src/components/chat/MessageBubble.tsx`
-- [ ] Tạo `src/components/chat/ChatInput.tsx`
-- [ ] Tạo `src/components/chat/SourceCard.tsx`
-- [ ] Tạo `src/components/documents/FileUploader.tsx`
-- [ ] Tạo `src/components/documents/DocumentList.tsx`
-- [ ] Tạo layout với Sidebar
-- [ ] Update `src/app/page.tsx`
-- [ ] Dark theme + animations
+| File | Mục đích |
+|:--|:--|
+| `src/store/chat-store.ts` | Zustand store — quản lý messages & streaming state |
+| `src/hooks/use-chat-stream.ts` | Custom hook — fetch stream từ `/api/chat` |
+| `src/hooks/use-documents.ts` | TanStack Query hooks — fetch, upload, delete docs |
+| `src/components/chat/message-bubble.tsx` | Render 1 message (user/assistant + markdown) |
+| `src/components/chat/chat-input.tsx` | Textarea + Send button |
+| `src/components/chat/chat-window.tsx` | Tổng hợp messages + skeleton + input |
+| `src/components/chat/chat-layout.tsx` | shadcn Sidebar + ChatWindow |
+| `src/components/documents/file-uploader.tsx` | Drag & drop upload |
+| `src/components/documents/document-list.tsx` | Danh sách docs + delete |
+| `src/app/page.tsx` | Entry point → `<ChatLayout />` |
 
 ---
 
-## Kiến thức cần biết
+## Kiến trúc tổng quan
 
-### useChat hook (Vercel AI SDK)
+```
+layout.tsx (dark, QueryProvider, TooltipProvider)
+└── page.tsx
+    └── ChatLayout (SidebarProvider)
+        ├── AppSidebar
+        │   ├── FileUploader  ← useUploadDocument() [TanStack Mutation]
+        │   └── DocumentList  ← useDocuments() [TanStack Query]
+        └── main
+            └── ChatWindow
+                ├── MessageBubble[]  ← useChatStore (Zustand)
+                └── ChatInput        ← useChatStream() [Fetch Streams API]
+```
 
-```tsx
+---
+
+## File 1: `src/store/chat-store.ts`
+
+```typescript
+import { create } from "zustand";
+
+export interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  isStreaming?: boolean;
+}
+
+interface ChatState {
+  messages: Message[];
+  isLoading: boolean;
+  addUserMessage: (content: string) => string;
+  startAssistantMessage: () => string;
+  appendToMessage: (id: string, chunk: string) => void;
+  finalizeMessage: (id: string) => void;
+  setLoading: (loading: boolean) => void;
+  clearMessages: () => void;
+}
+
+// useChatStore manages the chat messages and streaming state using Zustand.
+export const useChatStore = create<ChatState>((set) => ({
+  messages: [],
+  isLoading: false,
+
+  addUserMessage: (content: string) => {
+    const id = crypto.randomUUID();
+    set((state) => ({
+      messages: [...state.messages, { id, role: "user", content }],
+    }));
+    return id;
+  },
+
+  startAssistantMessage: () => {
+    const id = crypto.randomUUID();
+    set((state) => ({
+      messages: [
+        ...state.messages,
+        { id, role: "assistant", content: "", isStreaming: true },
+      ],
+    }));
+    return id;
+  },
+
+  appendToMessage: (id: string, chunk: string) => {
+    set((state) => ({
+      messages: state.messages.map((m) =>
+        m.id === id ? { ...m, content: m.content + chunk } : m
+      ),
+    }));
+  },
+
+  finalizeMessage: (id: string) => {
+    set((state) => ({
+      messages: state.messages.map((m) =>
+        m.id === id ? { ...m, isStreaming: false } : m
+      ),
+    }));
+  },
+
+  setLoading: (loading: boolean) => set({ isLoading: loading }),
+  clearMessages: () => set({ messages: [] }),
+}));
+```
+
+---
+
+## File 2: `src/hooks/use-chat-stream.ts`
+
+```typescript
 "use client";
-import { useChat } from "@ai-sdk/react";
 
-const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-  api: "/api/chat",  // endpoint từ Phase 6
-});
+import { useChatStore } from "@/store/chat-store";
+import { toast } from "sonner";
 
-// messages: Array<{ id, role, content }> — auto-managed
-// input: string — current input value
-// handleInputChange: input onChange handler
-// handleSubmit: form submit handler
-// isLoading: boolean — đang chờ response?
-```
+// useChatStream provides a sendMessage function that streams assistant responses.
+export function useChatStream() {
+  const { messages, isLoading, addUserMessage, startAssistantMessage, appendToMessage, finalizeMessage, setLoading, clearMessages } =
+    useChatStore();
 
-### shadcn/ui components bạn sẽ dùng
+  const sendMessage = async (content: string) => {
+    if (!content.trim() || isLoading) return;
 
-Đã cài ở Phase 0. Các component chính:
-- `Card` — container cho messages, source cards
-- `Input` / `Textarea` — chat input
-- `ScrollArea` — scrollable message list
-- `Avatar` — user/bot avatars
-- `Badge` — labels, tags
-- `Skeleton` — loading states
-- `Button` — send button, upload button
-- `Dialog` — upload dialog
-- `Tooltip` — hover info
+    addUserMessage(content);
+    setLoading(true);
 
----
+    const history = [
+      ...messages.map((m) => ({ role: m.role, content: m.content })),
+      { role: "user" as const, content },
+    ];
 
-## Step 1: Layout & Sidebar
+    const assistantId = startAssistantMessage();
 
-### File: `src/app/page.tsx`
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: history }),
+      });
 
-Layout gồm 2 phần chính:
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Chat request failed");
+      }
 
-```
-┌─────────────┬──────────────────────────┐
-│             │                          │
-│  Sidebar    │     Chat Window          │
-│  (280px)    │                          │
-│             │  ┌─────────────────────┐ │
-│  - Logo     │  │  Message List       │ │
-│  - New Chat │  │  (scroll)           │ │
-│  - Docs     │  │                     │ │
-│             │  │  [User] ...         │ │
-│  Documents: │  │  [Bot]  ...         │ │
-│  📄 doc1    │  │  [User] ...         │ │
-│  📄 doc2    │  │  [Bot]  ...         │ │
-│             │  │                     │ │
-│  [Upload]   │  ├─────────────────────┤ │
-│             │  │  Chat Input         │ │
-│             │  │  [___________][Send]│ │
-│             │  └─────────────────────┘ │
-└─────────────┴──────────────────────────┘
-```
+      if (!res.body) throw new Error("No response body");
 
-### Gợi ý:
-- Dùng CSS Grid hoặc Flexbox cho layout
-- Sidebar: fixed width `w-[280px]`
-- Chat area: `flex-1`
-- Dark theme: thêm class `dark` vào `<html>` tag
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
 
----
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        appendToMessage(assistantId, chunk);
+      }
+    } catch (err: any) {
+      appendToMessage(assistantId, `\n\n_Error: ${err.message}_`);
+      toast.error(err.message);
+    } finally {
+      finalizeMessage(assistantId);
+      setLoading(false);
+    }
+  };
 
-## Step 2: ChatWindow Component
-
-### File: `src/components/chat/ChatWindow.tsx`
-
-```
-"use client" component
-
-Structure:
-  1. Dùng useChat hook
-  2. Render:
-     - Header (model name, status)
-     - ScrollArea chứa messages list
-     - ChatInput ở dưới cùng
-  3. Auto-scroll to bottom khi có message mới
-
-Props: (không cần, state nằm trong useChat)
-```
-
-### Hướng dẫn:
-
-```tsx
-// 1. Import useChat, shadcn components
-// 2. Gọi useChat({ api: "/api/chat" })
-// 3. Map messages → <MessageBubble />
-// 4. Render <ChatInput /> ở bottom
-// 5. Dùng useRef + useEffect để auto-scroll
-```
-
----
-
-## Step 3: MessageBubble Component
-
-### File: `src/components/chat/MessageBubble.tsx`
-
-```
-Props:
-  - role: "user" | "assistant"
-  - content: string
-  - sources?: Array<{ content, metadata }> // optional
-
-Render:
-  - User message: align right, primary color bg
-  - Bot message: align left, muted bg
-  - Avatar (lucide-react icons: User, Bot)
-  - Content: dùng react-markdown để render markdown
-  - Sources: render SourceCard[] nếu có
-```
-
-### Styling gợi ý:
-```css
-/* User message */
-.user-msg { @apply ml-auto bg-primary text-primary-foreground rounded-2xl rounded-br-sm }
-
-/* Bot message */  
-.bot-msg { @apply mr-auto bg-muted rounded-2xl rounded-bl-sm }
-```
-
-### Markdown rendering:
-
-```tsx
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-
-<ReactMarkdown remarkPlugins={[remarkGfm]}>
-  {content}
-</ReactMarkdown>
-```
-
----
-
-## Step 4: ChatInput Component
-
-### File: `src/components/chat/ChatInput.tsx`
-
-```
-Props:
-  - input: string
-  - handleInputChange: function
-  - handleSubmit: function
-  - isLoading: boolean
-
-Render:
-  - Textarea (auto-resize, max 5 rows)
-  - Send button (disabled khi loading hoặc empty)
-  - Loading indicator khi isLoading
-
-Behavior:
-  - Enter → submit (Shift+Enter → new line)
-  - Auto-focus on mount
-  - Clear input after submit (useChat does this)
-```
-
-### Icons: `Send`, `Loader2` từ `lucide-react`
-
----
-
-## Step 5: FileUploader Component
-
-### File: `src/components/documents/FileUploader.tsx`
-
-```
-Features:
-  - Drag & drop area
-  - Click to browse files
-  - File type validation (.pdf, .txt, .md)
-  - Upload progress indicator
-  - Success/error feedback
-
-Behavior:
-  1. User drops/selects file
-  2. POST to /api/ingest with FormData
-  3. Show progress
-  4. On success: refresh document list
-  5. On error: show error message
-```
-
-### shadcn components: `Dialog`, `Button`, `Badge`
-
----
-
-## Step 6: DocumentList Component
-
-### File: `src/components/documents/DocumentList.tsx`
-
-```
-Props:
-  - Fetch from /api/documents
-
-Render:
-  - List of documents: filename, type badge, chunks count, date
-  - Delete button per document
-  - Empty state khi chưa có documents
-
-Behavior:
-  - Load on mount (useEffect + fetch)
-  - Delete → confirm → call DELETE /api/documents
-  - Refresh after delete
-```
-
----
-
-## Step 7: Dark Theme
-
-### Update `src/app/layout.tsx`:
-
-```tsx
-// Thêm class "dark" vào html tag
-<html lang="en" className="dark">
-```
-
-shadcn/ui đã có sẵn dark theme variables trong `globals.css` (từ preset bạn đã chọn). Chỉ cần enable.
-
-### (Optional) Theme toggle:
-
-```bash
-npx shadcn@latest add switch
-```
-
-Tạo toggle component để switch light/dark.
-
----
-
-## Step 8: Micro-animations
-
-Gợi ý animations cho UX tốt:
-
-```css
-/* Message appear animation */
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.message-enter { animation: slideUp 0.3s ease-out; }
-
-/* Typing indicator (3 dots) */
-@keyframes bounce {
-  0%, 80%, 100% { transform: scale(0); }
-  40% { transform: scale(1); }
-}
-
-/* Streaming text cursor */
-.streaming::after {
-  content: "▊";
-  animation: blink 1s infinite;
+  return { messages, isLoading, sendMessage, clearMessages };
 }
 ```
+
+---
+
+## File 3: `src/hooks/use-documents.ts`
+
+```typescript
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+export interface Document {
+  id: string;
+  filename: string;
+  fileType: string;
+  fileSize: number;
+  createdAt: string;
+  chunksCount: number;
+}
+
+export const documentsQueryKey = ["documents"] as const;
+
+// useDocuments fetches the list of ingested documents.
+export function useDocuments() {
+  return useQuery<Document[]>({
+    queryKey: documentsQueryKey,
+    queryFn: async () => {
+      const res = await fetch("/api/documents");
+      if (!res.ok) throw new Error("Failed to fetch documents");
+      const data = await res.json();
+      return data.documents;
+    },
+    staleTime: 30 * 1000,
+  });
+}
+
+// useDeleteDocument deletes a document by ID with cache invalidation.
+export function useDeleteDocument() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/documents?id=${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete document");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: documentsQueryKey });
+      toast.success("Document deleted successfully");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+// useUploadDocument uploads a file to the ingest API.
+export function useUploadDocument() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/ingest", { method: "POST", body: formData });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Upload failed");
+      }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: documentsQueryKey });
+      toast.success(`Ingested "${data.filename}" → ${data.chunksCreated} chunks`);
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+```
+
+---
+
+## Test sau khi hoàn thành
+
+1. Mở `http://localhost:3000`
+2. Upload `documents/sample.txt` qua sidebar
+3. Hỏi chatbot: *"mật khẩu wifi của tàu là gì?"*
+4. Xem text stream ra từng từ một
 
 ---
 
 ## ✅ Kết quả mong đợi
 
-- Dark theme chat UI hoàn chỉnh
-- Streaming text hiển thị real-time
-- Upload documents qua drag & drop
-- Source cards hiển thị chunks được trích dẫn
-- Responsive layout (desktop + mobile)
-- Smooth animations
+- Dark theme toàn bộ app
+- Sidebar trái: upload + danh sách documents
+- Chat phải: streaming messages với markdown
+- Typing skeleton khi chờ LLM
+- Slide-up animation mỗi tin nhắn mới
 
 **→ [Phase 8: Polish & Auth](./phase-8-polish-auth.md)**
