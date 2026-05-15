@@ -28,7 +28,6 @@ const data = {
       title: "Chat",
       url: "/",
       icon: MessageSquare,
-      isActive: true,
     },
     {
       title: "Knowledge Base",
