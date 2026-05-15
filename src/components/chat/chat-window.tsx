@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Bot, Sparkles, Trash2 } from "lucide-react";
+import { Bot } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
 import { MessageBubble } from "./message-bubble";
 import { ChatInput } from "./chat-input";
 import { useChatStream } from "@/hooks/use-chat-stream";
@@ -18,7 +17,7 @@ const SUGGESTIONS = [
 
 // ChatWindow is the main chat panel with message list, empty state, and prompt input.
 export function ChatWindow() {
-  const { messages, isLoading, sendMessage, clearMessages } = useChatStream();
+  const { messages, isLoading, sendMessage } = useChatStream();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,32 +27,7 @@ export function ChatWindow() {
   const isEmpty = messages.length === 0;
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-3 border-b bg-background/80 backdrop-blur-sm shrink-0">
-        <div className="flex items-center gap-2">
-          <Sparkles className="size-4 text-primary" />
-          <span className="text-sm font-medium">RAG Assistant</span>
-          {isLoading && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <span className="size-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
-              Thinking…
-            </span>
-          )}
-        </div>
-        {!isEmpty && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearMessages}
-            className="text-muted-foreground hover:text-foreground h-7 px-2 text-xs"
-          >
-            <Trash2 className="size-3 mr-1" />
-            Clear
-          </Button>
-        )}
-      </div>
-
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Message list or empty state */}
       <ScrollArea className="flex-1">
         <div className="max-w-3xl mx-auto w-full px-4">

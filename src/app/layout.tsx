@@ -7,6 +7,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
+import { AuthProvider } from "@/components/providers/auth-provider";
+
 const jetbrainsMonoHeading = JetBrains_Mono({ subsets: ["latin"], variable: "--font-heading" });
 
 const geistSans = Geist({
@@ -42,11 +44,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <QueryProvider>
-            <TooltipProvider>
-              {children}
-            </TooltipProvider>
-          </QueryProvider>
+          <AuthProvider>
+            <QueryProvider>
+              <TooltipProvider>
+                {children}
+              </TooltipProvider>
+            </QueryProvider>
+          </AuthProvider>
+
           <Toaster />
         </ThemeProvider>
       </body>
