@@ -1,41 +1,77 @@
 import { NextRequest } from "next/server";
+import { getServerSession } from "next-auth";
+import { eq, and } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { chatSessions, chatMessages } from "@/lib/db/schema";
+import { authOptions } from "@/lib/auth";
 import { createRAGChain } from "@/lib/langchain/chain";
 
-// POST /api/chat
-// Body: { messages: [{ role: "user", content: "..." }] }
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
-    const messages: { role: string; content: string }[] = body.messages;
+    const { messages, sessionId } = body;
 
     if (!messages || messages.length === 0) {
       return Response.json({ error: "No messages provided" }, { status: 400 });
     }
 
-    // Lấy message cuối cùng của user
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage.role !== "user") {
-      return Response.json({ error: "Last message must be from user" }, { status: 400 });
+    if (!sessionId) {
+      return Response.json({ error: "Session ID is required" }, { status: 400 });
     }
 
-    const userQuery = lastMessage.content;
-    console.log(`[Chat] User query: "${userQuery}"`);
+    // 1. Verify session ownership
+    const chatSession = await db.query.chatSessions.findFirst({
+      where: and(
+        eq(chatSessions.id, sessionId),
+        eq(chatSessions.userId, session.user.id)
+      ),
+    });
 
-    // createRAGChain() trả về RunnableSequence
-    // .stream() là method có sẵn trên mọi Runnable của LangChain
+    if (!chatSession) {
+      return Response.json({ error: "Chat session not found" }, { status: 404 });
+    }
+
+    // 2. Save User Message
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage.role !== "user") {
+      return Response.json({ error: "Invalid message flow" }, { status: 400 });
+    }
+
+    await db.insert(chatMessages).values({
+      sessionId: sessionId,
+      role: "user",
+      content: lastMessage.content,
+    });
+
+    // 3. Stream from LangChain
     const chain = await createRAGChain();
-    const stream = await chain.stream(userQuery);
+    const stream = await chain.stream(lastMessage.content);
 
-    // Convert LangChain AsyncIterator → Web ReadableStream để trả về HTTP
     const encoder = new TextEncoder();
+    let assistantContent = "";
+
     const readableStream = new ReadableStream({
       async start(controller) {
         try {
           for await (const chunk of stream) {
-            // chain của chúng ta dùng StringOutputParser → chunk là string thuần
             if (chunk) {
+              assistantContent += chunk;
               controller.enqueue(encoder.encode(chunk));
             }
+          }
+          
+          // 4. Save Assistant Message once stream is done
+          if (assistantContent) {
+            await db.insert(chatMessages).values({
+              sessionId: sessionId,
+              role: "assistant",
+              content: assistantContent,
+            });
           }
         } catch (err) {
           console.error("[Chat] Stream error:", err);
@@ -50,7 +86,6 @@ export async function POST(request: NextRequest) {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
         "Cache-Control": "no-cache",
-        "X-Content-Type-Options": "nosniff",
       },
     });
   } catch (error: any) {

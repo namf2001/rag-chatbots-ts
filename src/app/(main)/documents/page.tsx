@@ -8,17 +8,19 @@ export const metadata = {
 
 export default function DocumentsPage() {
   return (
-    <div className="p-6">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <section>
-          <h2 className="text-lg font-semibold mb-4 text-foreground/90">Upload Document</h2>
-          <FileUploader />
-        </section>
+    <div className="h-full overflow-y-auto">
+      <div className="p-6">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <section>
+            <h2 className="text-lg font-semibold mb-4 text-foreground/90">Upload Document</h2>
+            <FileUploader />
+          </section>
 
-        <section>
-          <h2 className="text-lg font-semibold mb-4 text-foreground/90">Ingested Documents</h2>
-          <DocumentList />
-        </section>
+          <section>
+            <h2 className="text-lg font-semibold mb-4 text-foreground/90">Ingested Documents</h2>
+            <DocumentList />
+          </section>
+        </div>
       </div>
     </div>
   );

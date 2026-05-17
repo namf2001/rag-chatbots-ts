@@ -1,11 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { Bot, Database, MessageSquare } from "lucide-react"
+import { Bot, Database, MessageSquare, Plus } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useChatStore } from "@/store/chat-store"
 
 import { NavMain } from "@/components/layout/sidebar/nav-main"
 import { NavHistory } from "@/components/layout/sidebar/nav-history"
 import { NavUser } from "@/components/layout/sidebar/nav-user"
+import { Button } from "@/components/ui/button"
 import {
   Sidebar,
   SidebarContent,
@@ -25,7 +28,7 @@ const data = {
   },
   navMain: [
     {
-      title: "Chat",
+      title: "Chat Assistant",
       url: "/",
       icon: MessageSquare,
     },
@@ -35,23 +38,17 @@ const data = {
       icon: Database,
     },
   ],
-  history: [
-    { name: "Tóm tắt tài liệu hệ thống", url: "#", icon: MessageSquare },
-    { name: "Phân tích báo cáo tài chính", url: "#", icon: MessageSquare },
-    { name: "So sánh hợp đồng mẫu", url: "#", icon: MessageSquare },
-    { name: "Giải thích pipeline RAG", url: "#", icon: MessageSquare },
-    { name: "Hướng dẫn cài đặt Drizzle", url: "#", icon: MessageSquare },
-    { name: "So sánh React và Vue", url: "#", icon: MessageSquare },
-    { name: "Tối ưu hóa vector search", url: "#", icon: MessageSquare },
-    { name: "Tài liệu API Auth", url: "#", icon: MessageSquare },
-    { name: "Hướng dẫn deploy Vercel", url: "#", icon: MessageSquare },
-    { name: "Các chỉ số KPI dự án", url: "#", icon: MessageSquare },
-    { name: "Lên plan Marketing tháng 5", url: "#", icon: MessageSquare },
-    { name: "Code review: Chat component", url: "#", icon: MessageSquare },
-  ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const router = useRouter()
+  const { clearMessages } = useChatStore()
+
+  const handleNewChat = () => {
+    clearMessages()
+    router.push("/")
+  }
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -70,8 +67,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
+        <div className="px-3 py-2 group-data-[collapsible=icon]:hidden">
+          <Button 
+            onClick={handleNewChat}
+            variant="outline" 
+            className="w-full justify-start gap-2 shadow-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all border-dashed h-9 px-3"
+          >
+            <Plus className="size-4" />
+            <span className="font-medium text-xs">New Chat</span>
+          </Button>
+        </div>
         <NavMain items={data.navMain} />
-        <NavHistory history={data.history} />
+        <NavHistory />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

@@ -51,13 +51,6 @@ export function MainHeader() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        
-        {isChatPage && isLoading && (
-          <span className="flex items-center gap-1 text-xs text-muted-foreground ml-2 animate-in fade-in slide-in-from-left-2 duration-300">
-            <span className="size-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
-            Thinking…
-          </span>
-        )}
       </div>
 
       <div className="flex items-center gap-2">
